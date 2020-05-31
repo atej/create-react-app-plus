@@ -101,11 +101,11 @@ done
 echo
 
 # Mock API Prompt
-echo "Do you want to setup a mock api?"
+echo "Do you want to setup a mock api express server?"
 select mockapi_choice in "Yes" "No" "Cancel"; do
   case $mockapi_choice in
-    Yes ) skip_mockapi_installation="false"; break;;
-    No ) skip_mockapi_installation="true"; break;;
+    Yes ) skip_mockapi_setup="false"; break;;
+    No ) skip_mockapi_setup="true"; break;;
     Cancel ) exit;;
   esac
 done
@@ -122,6 +122,17 @@ select axios_choice in "Yes" "No" "Cancel"; do
 done
 echo
 
+# Mock API Prompt
+echo "Do you want to setup tailwind?"
+select tailwind_choice in "Yes" "No" "Cancel"; do
+  case $tailwind_choice in
+    Yes ) skip_tailwind_setup="false"; break;;
+    No ) skip_tailwind_setup="true"; break;;
+    Cancel ) exit;;
+  esac
+done
+echo
+
 # ----------------------
 # Perform Configuration
 # ----------------------
@@ -129,97 +140,29 @@ echo
 echo -e "${GREEN}Configuring your development environment... ${NC}"
 
 echo
-echo -e "1/11 ${LCYAN}ESLint & Prettier Installation... ${NC}"
+echo -e "${LCYAN}ESLint & Prettier Installation... ${NC}"
 echo
 $pkg_cmd -D eslint@^6.6.0 prettier
 
 echo
-echo -e "2/11 ${YELLOW}Conforming to Airbnb's JavaScript Style Guide... ${NC}"
+echo -e "${YELLOW}Conforming to Airbnb's JavaScript Style Guide... ${NC}"
 echo
 $pkg_cmd -D eslint-config-airbnb eslint-plugin-jsx-a11y eslint-plugin-import eslint-plugin-react babel-eslint
 
-if [ "$skip_proptypes_installation" == "true" ]; then
-  break
-else
-  echo
-  echo -e "3/11 ${LCYAN}PropTypes installation... ${NC}"
-  echo
-  $pkg_cmd prop-types
-fi
-
-if [ "$skip_faker_installation" == "true" ]; then
-  break
-else
-  echo
-  echo -e "4/11 ${LCYAN}Faker installation... ${NC}"
-  echo
-  $pkg_cmd faker
-fi
-
-if [ "$skip_mockapi_installation" == "true" ]; then
-  break
-else
-  echo
-  echo -e "5/11 ${LCYAN}Setting up a mock api... ${NC}"
-  echo
-
-  # Install dev dependencies for mock api
-  $pkg_cmd -D express connect-api-mocker npm-run-all
-
-  # Add proxy config to package.json
-  sed -i.bak '2a\
-\ \ "proxy": "http://localhost:9000/api",
-' package.json
-
-  # Add script to serve the mock api and serve it in parallel with the react app 
-  sed -i.bak '/"eject": "react-scripts eject"/i\
-\ \ \ \ "mock-api": "node ./mock-api/app.js",\
-\ \ \ \ "dev": "run-p start mock-api",
-' package.json
-
-  rm package.json.bak
-
-  # Create the mock-api directory
-  mkdir mock-api
-
-  # Create the entry point for express server
-  echo -e "6/11 ${YELLOW}Building the entry-point of your mock API Express server...${NC}"
-  > "mock-api/app.js" # truncates existing file (or creates empty)
-  echo "/* eslint-disable no-console */
-/* eslint-disable import/no-extraneous-dependencies */
-const express = require('express');
-const apiMocker = require('connect-api-mocker');
-
-const port = 9000;
-const app = express();
-
-app.use('/api', apiMocker('mock-api'));
-
-console.log(\`Mock API Server is up and running at: http://localhost:\${port}\`);
-app.listen(port);" >> mock-api/app.js
-fi
-
-if [ "$skip_axios_installation" == "true" ]; then
-  break
-else
-  echo
-  echo -e "7/11 ${LCYAN}Axios installation... ${NC}"
-  echo
-  $pkg_cmd axios
-fi
-
 echo
-echo -e "8/11 ${LCYAN}Making ESlint and Prettier play nice with each other... ${NC}"
+echo -e "${LCYAN}Making ESlint and Prettier play nice with each other... ${NC}"
 echo "See https://github.com/prettier/eslint-config-prettier for more details."
 echo
 $pkg_cmd -D eslint-config-prettier eslint-plugin-prettier
 
 
 if [ "$skip_eslint_setup" == "true" ]; then
-  break
+  echo
+  echo -e "${LCYAN}Skipping eslint setup... ${NC}"
+  echo
 else
   echo
-  echo -e "9/11 ${YELLOW}Building your .eslintrc${config_extension} file...${NC}"
+  echo -e "${YELLOW}Building your .eslintrc${config_extension} file...${NC}"
   > ".eslintrc${config_extension}" # truncates existing file (or creates empty)
   if [ "$skip_proptypes_installation" == "true" ]; then
     echo ${config_opening}'
@@ -292,7 +235,7 @@ else
 
   mkdir .vscode
 
-  echo -e "10/11 ${YELLOW}Building your settings.json file...${NC}"
+  echo -e "${YELLOW}Building your settings.json file...${NC}"
   > ".vscode/settings.json" # truncates existing file (or creates empty)
   echo '{
   "eslint.packageManager": "'${pkg_man}'",
@@ -308,9 +251,11 @@ fi
 
 
 if [ "$skip_prettier_setup" == "true" ]; then
-  break
+  echo
+  echo -e "${LCYAN}Skipping prettier setup... ${NC}"
+  echo
 else
-  echo -e "11/11 ${YELLOW}Building your .prettierrc${config_extension} file... ${NC}"
+  echo -e "${YELLOW}Building your .prettierrc${config_extension} file... ${NC}"
   > .prettierrc${config_extension} # truncates existing file (or creates empty)
 
   echo ${config_opening}'
@@ -319,12 +264,201 @@ else
 }' >> .prettierrc${config_extension}
 fi
 
+if [ "$skip_proptypes_installation" == "true" ]; then
+  echo
+  echo -e "${LCYAN}Skipping prop-types installation... ${NC}"
+  echo
+else
+  echo
+  echo -e "${LCYAN}PropTypes installation... ${NC}"
+  echo
+  $pkg_cmd prop-types
+fi
+
+if [ "$skip_faker_installation" == "true" ]; then
+  echo
+  echo -e "${LCYAN}Skipping faker installation... ${NC}"
+  echo
+else
+  echo
+  echo -e "${LCYAN}Faker installation... ${NC}"
+  echo
+  $pkg_cmd faker
+fi
+
+if [ "$skip_mockapi_setup" == "true" ]; then
+  echo
+  echo -e "${LCYAN}Skipping express mock api setup... ${NC}"
+  echo
+else
+  echo
+  echo -e "${LCYAN}Setting up a mock api express server... ${NC}"
+  echo
+
+  echo -e "Mock API 1/3 ${YELLOW}Installing dependencies... ${NC}"
+  $pkg_cmd -D express connect-api-mocker npm-run-all
+
+  echo -e "Mock API 2/3 ${YELLOW}Configuring build scripts... ${NC}"
+  # Add proxy config
+  sed -i.bak '2a\
+\ \ "proxy": "http://localhost:9000/api",
+' package.json
+  # Add `start:react` script
+  sed -i.bak '/"scripts"/a\
+\ \ \ \ "start:react": "react-scripts start",
+' package.json
+  # Add script `mock-api` to serve the mock api
+    sed -i.bak '/"eject": "react-scripts eject"/i\
+\ \ \ \ "mock-api": "node ./mock-api/app.js",
+' package.json
+  # Replace original `start` script
+  sed -i.bak 's/"start": "react-scripts start"/"start": "run-p start:react mock-api"/' package.json
+  # Remove package.json.bak file
+  rm package.json.bak
+
+  # Create the mock-api directory
+  mkdir mock-api
+
+  echo -e "Mock API 3/3 ${YELLOW}Building the entry-point of your mock API Express server...${NC}"
+  > "mock-api/app.js" # truncates existing file (or creates empty)
+  echo "/* eslint-disable no-console */
+/* eslint-disable import/no-extraneous-dependencies */
+const express = require('express');
+const apiMocker = require('connect-api-mocker');
+
+const port = 9000;
+const app = express();
+
+app.use('/api', apiMocker('mock-api'));
+
+console.log(\`Mock API Server is up and running at: http://localhost:\${port}\`);
+app.listen(port);" >> mock-api/app.js
+fi
+
+if [ "$skip_axios_installation" == "true" ]; then
+  echo
+  echo -e "${LCYAN}Skipping axios installation... ${NC}"
+  echo
+else
+  echo
+  echo -e "${LCYAN}Axios installation... ${NC}"
+  echo
+  $pkg_cmd axios
+fi
+
+if [ "$skip_tailwind_setup" == "true" ]; then
+  echo
+  echo -e "${LCYAN}Skipping tailwind setup... ${NC}"
+  echo
+else
+  echo
+  echo -e "${LCYAN}Setting up tailwind css... ${NC}"
+  echo
+
+  echo -e "Tailwind 1/8 ${YELLOW}Installing dependencies... ${NC}"
+  $pkg_cmd tailwindcss postcss-cli postcss-import postcss-preset-env
+  $pkg_cmd -D @fullhuman/postcss-purgecss npm-run-all
+
+  echo -e "Tailwind 2/8 ${YELLOW}Setting up build scripts... ${NC}"
+  # Add `prebuild`, `build:tailwind`, `watch:tailwind` scripts
+  sed -i.bak '/"eject": "react-scripts eject"/i\
+\ \ \ \ "build:tailwind": "REACT_APP_ENV=production postcss src/tailwind.css -o src/tailwind.generated.css",\
+\ \ \ \ "watch:tailwind": "REACT_APP_ENV=development postcss -w src/tailwind.css -o src/tailwind.generated.css",\
+\ \ \ \ "prebuild": "npm run build:tailwind",
+' package.json
+  # Modify the `start` script
+  if [ "$skip_mockapi_setup" == "true" ]; then
+    # Add `start:react` script
+    sed -i.bak '/"scripts"/a\
+\ \ \ \ "start:react": "react-scripts start",
+' package.json
+    # Replace original `start` script
+    sed -i.bak 's/"start": "react-scripts start"/"start": "run-p watch:tailwind start:react"/' package.json
+  else
+    # Replace previous mock-api `start` script
+    sed -i.bak 's/"start": "run-p start:react mock-api"/"start": "run-p watch:tailwind start:react mock-api"/' package.json
+  fi
+  rm package.json.bak
+
+  echo -e "Tailwind 3/8 ${YELLOW}Creating the postcss config file...${NC}"
+  > "postcss.config.js" # truncates existing file (or creates empty)
+  echo "/* eslint-disable global-require */
+/* eslint-disable import/no-extraneous-dependencies */
+const purgecss = require('@fullhuman/postcss-purgecss')({
+  content: [
+    './public/**/*.html',
+    './src/**/*.html',
+    './src/**/*.js',
+    './src/**/*.jsx',
+  ],
+
+  defaultExtractor: (content) => {
+    const broadMatches = content.match(/[^<>\"'\`\\s]*[^<>\"'\`\\s:]/g) || [];
+    const innerMatches = content.match(/[^<>\"'\`\\s.()]*[^<>\"'\`\\s.():]/g) || [];
+
+    return broadMatches.concat(innerMatches);
+  },
+});
+
+module.exports = {
+  plugins: [
+    require('postcss-import'),
+    require('tailwindcss'),
+    require('postcss-preset-env')({ stage: 1 }),
+    ...(process.env.REACT_APP_ENV === 'production' ? [purgecss] : []),
+  ],
+};" >> postcss.config.js
+
+  echo -e "Tailwind 4/8 ${YELLOW}Initializing an empty tailwind config file ...${NC}"
+  > "tailwind.config.js" # truncates existing file (or creates empty)
+  echo "module.exports = {
+  theme: {
+    extend: {},
+  },
+  variants: {},
+  plugins: [],
+};" >> tailwind.config.js
+
+  echo -e "Tailwind 5/8 ${YELLOW}Creating the tailwind source css file...${NC}"
+  > "src/tailwind.css" # truncates existing file (or creates empty)
+  echo '/* purgecss start ignore */
+@import "tailwindcss/base";
+@import "./custom-base-styles.css";
+
+@import "tailwindcss/components";
+@import "./custom-components.css";
+/* purgecss end ignore */
+
+@import "tailwindcss/utilities";
+
+/* purgecss start ignore */
+@import "./custom-utilities.css";
+/* purgecss end ignore */' >> src/tailwind.css
+
+  echo -e "Tailwind 6/8 ${YELLOW}Creating custom css files...${NC}"
+  touch src/custom-base-styles.css src/custom-components.css src/custom-utilities.css
+
+  echo -e "Tailwind 7/8 ${YELLOW}Adding the tailwind generated css file to gitignore...${NC}"
+  sed -i.bak '$a\
+\
+# tailwind generated css\
+src/tailwind.generated.css
+' .gitignore
+  rm .gitignore.bak
+
+  echo -e "Tailwind 8/8 ${YELLOW}Importing tailwind css in index.js...${NC}"
+  sed -i.bak "/import App/a\\
+import './tailwind.generated.css';
+" src/index.js
+  rm src/index.js.bak
+fi
+
+sed -i.bak '1i\
+/* eslint-disable react/jsx-filename-extension */
+' src/index.js
+rm src/index.js.bak
+
 echo
 echo -e "${GREEN}Finished setting up!${NC}"
+echo -e "Start things up with ${LCYAN}${pkg_man} run start${NC}"
 echo
-
-if [ "$skip_mockapi_installation" == "false" ]; then
-  echo
-  echo -e "Start your react app and mock API server with ${LCYAN}${pkg_man} run dev${NC}"
-  echo
-fi

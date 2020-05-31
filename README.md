@@ -5,6 +5,7 @@
 #### 🎭️ Faker.js for fake data [optional]
 #### 🌐 A local mock API server [optional]
 #### 🐕️ Axios to make HTTP requests [optional]
+#### 🌊 Tailwind for utility-first CSS [optional]
 
 # Installation
 1. Create a new react app
@@ -29,15 +30,16 @@
     - `.eslintrc.js` (or `.eslintrc.json`) - eslint config file
     - `.prettierrc.js` (or `.prettierrc.json`) - prettier config file
     -  `.vscode/settings.json` - editor settings for the current workspace
-    - `mock-api/app.js` - The entry point for your mock API server (if option to mock an API was selected while executing script)
-
+    - The following will be seen if the option to setup a mock API express server was selected
+      - `mock-api/app.js` - The entry point for your mock API server
+    - The following will be seen if the option to setup tailwind css was selected
+      - `tailwind.config.js` - An empty tailwind config 
+      - `postcss.config.js` - PostCSS config
+      - `src/tailwind.css` - The entry point for PostCSS
+      - `src/custom-base-styles.css`, `src/custom-components.css`, `src/custom-utilities.css` - files for your custom css
 6. Start the react app server
     ```bash
     npm run start
-    ```
-    or, start the react app and mock API server together
-    ``` bash
-    npm run dev
     ```
 
 # Packages
@@ -76,6 +78,19 @@
 
 ## Data fetching
 - [axios](https://github.com/axios/axios) - Promise based HTTP client for the browser and node.js
+
+## Tailwind CSS
+Tailwind CSS is a PostCSS plugin. The following packages are needed to make it work optimally.
+### PostCSS
+#### CLI
+- [postcss-cli](CLI for postcss) - CLI for postcss
+#### PostCSS plugins
+- [tailwindcss](https://github.com/tailwindcss/tailwindcss) - A utility-first CSS framework for rapid UI development.
+- [postcss-preset-env](https://github.com/csstools/postcss-preset-env) - Convert modern CSS into something browsers understand (includes CSS variables, nesting, and autoprefixer out-of-the-box).
+- [postcss-import](https://github.com/postcss/postcss-import) - PostCSS plugin to inline @import rules content
+- [@fullhuman/postcss-purgecss](https://github.com/FullHuman/purgecss) - Remove unused CSS
+
+
 ## NPM stuff
 ### Script runners
 - [npm-run-all](https://github.com/mysticatea/npm-run-all) - A CLI tool to run multiple npm-scripts in parallel or sequential.
@@ -176,8 +191,71 @@ console.log(`Mock API Server is up and running at: http://localhost:${port}`);
 app.listen(port);
 ```
 - Refer [this post](https://blog.harveydelaney.com/setting-up-a-mock-api-for-your-front-end-react-project/) for a detailed breakdown of the what and how of this set up
-- For more innformation, refer `connect-api-mocker` [docs](https://github.com/muratcorlu/connect-api-mocker)
+- For more information, refer `connect-api-mocker` [docs](https://github.com/muratcorlu/connect-api-mocker)
 
+## Functional CSS with Tailwind
+### `postcss.config.js`
+```js
+const purgecss = require('@fullhuman/postcss-purgecss')({
+  content: [
+    './public/**/*.html',
+    './src/**/*.html',
+    './src/**/*.js',
+    './src/**/*.jsx',
+  ],
+
+  defaultExtractor: (content) => {
+    const broadMatches = content.match(/[^<>"'`\s]*[^<>"'`\s:]/g) || [];
+    const innerMatches = content.match(/[^<>"'`\s.()]*[^<>"'`\s.():]/g) || [];
+
+    return broadMatches.concat(innerMatches);
+  },
+});
+
+module.exports = {
+  plugins: [
+    require('postcss-import'),
+    require('tailwindcss'),
+    require('postcss-preset-env')({ stage: 1 }),
+    ...(process.env.REACT_APP_ENV === 'production' ? [purgecss] : []),
+  ],
+};
+```
+### `tailwind.config.js`
+```js
+module.exports = {
+  theme: {
+    extend: {},
+  },
+  variants: {},
+  plugins: [],
+};
+```
+
+### `src/tailwind.css`
+```css
+/* purgecss start ignore */
+@import "tailwindcss/base";
+@import "./custom-base-styles.css";
+
+@import "tailwindcss/components";
+@import "./custom-components.css";
+/* purgecss end ignore */
+
+@import "tailwindcss/utilities";
+
+/* purgecss start ignore */
+@import "./custom-utilities.css";
+/* purgecss end ignore */
+```
+
+### Blank Custom CSS files: `src/custom-base-styles.css`, `src/custom-components.css`, `src/custom-utilities.css`
+
+> Note: A file named `tailwind.generated.css` will be auto-generated in the `src` directory when you `start` or `build` the app. This is the main tailwind CSS file which is imported in `index.js`. Do not manipulate this file directly. Also since, it is auto-generated from your source CSS, it should not be committed to source control (a corresponding entry in `.gitignore` is made by the script).
+
+- Refer [this post](https://daveceddia.com/tailwind-create-react-app/), for a detailed breakdown of the what and how of this setup.
+- From the Tailwind docs - [using with preprocessors](https://tailwindcss.com/docs/using-with-preprocessors) and [controlling file size](https://tailwindcss.com/docs/controlling-file-size) are valuable to further understand what's going on.
+- To learn more about tailwind concepts, refer the [docs.](https://tailwindcss.com/docs/utility-first)
 ---
 
 ## Origin Story
@@ -188,7 +266,7 @@ So I began to tinker with the aforementioned script, to make it play well with `
 As the amount of stuff the script did eventually grew, and its coupling with `create-react-app` and Visual Studio Code became tighter, it felt like this should be its own thing.
 
 ## Prior Art
-Without these shoulders to stand on, this mini-project would not have seen the light of day.
+Without these shoulders to stand on, this project would not have seen the light of day.
 
 [1]: Paulo Ramos's [eslint-prettier-airbnb-react](https://github.com/paulolramos/eslint-prettier-airbnb-react) script
 
@@ -196,4 +274,6 @@ Without these shoulders to stand on, this mini-project would not have seen the l
 
 [3]: Harvey Delaney's [post](https://blog.harveydelaney.com/setting-up-a-mock-api-for-your-front-end-react-project/) and companion [repo](https://github.com/HarveyD/mock-api-react) on setting up a local mock API
 
-[4]: Stephen Grider's  [course on react and redux](https://www.udemy.com/course/react-redux/)
+[4]: Dave Ceddia's [post](https://daveceddia.com/tailwind-create-react-app/) on using Tailwind CSS with `create-react-app`
+
+[5]: Stephen Grider's  [course on react and redux](https://www.udemy.com/course/react-redux/)
