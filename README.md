@@ -23,7 +23,7 @@
     exec 3<&1;bash <&3 <(curl https://raw.githubusercontent.com/atej/create-react-app-plus/master/create-react-app-plus.sh 2> /dev/null)
     ```
 
-4. Follow the prompts and make selections for your preference of package manager (npm or yarn), file format (.js or .json), max-line size, `prop-types` installation, `faker` installation, and whether to set up a mock API server.
+4. Follow the prompts and make selections for your preference of package manager (npm or yarn), file format (.js or .json), max-line size, an `express` server to mock an API, Tailwind CSS setup, `prop-types` installation, `faker` installation, and `axios` installation.
 
 5. Look in your project's root directory and notice the newly added/updated config files/folders:
     - `.eslintrc.js` (or `.eslintrc.json`) - eslint config file
