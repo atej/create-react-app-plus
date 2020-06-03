@@ -1,6 +1,6 @@
 {
   "name": "create-react-app-plus",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Setup a sweet `create-react-app` development environment ludicrously fast",
   "main": "Gruntfile.js",
   "scripts": {
