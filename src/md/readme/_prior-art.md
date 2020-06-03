@@ -8,5 +8,3 @@ Without these shoulders to stand on, this project would not have seen the light 
 [3]: Harvey Delaney's [post](https://blog.harveydelaney.com/setting-up-a-mock-api-for-your-front-end-react-project/) and companion [repo](https://github.com/HarveyD/mock-api-react) on setting up a local mock API
 
 [4]: Dave Ceddia's [post](https://daveceddia.com/tailwind-create-react-app/) on using Tailwind CSS with `create-react-app`
-
-[5]: Stephen Grider's  [course on react and redux](https://www.udemy.com/course/react-redux/)
