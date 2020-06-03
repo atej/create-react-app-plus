@@ -1,17 +1,22 @@
 #!/bin/bash
 
-# ----------------------
+# ---------------
 # Color Variables
-# ----------------------
-RED="\033[0;31m"
+# ---------------
+RED='\033[0;31m'
 YELLOW='\033[1;33m'
 GREEN='\033[1;32m'
 LCYAN='\033[1;36m'
 NC='\033[0m' # No Color
 
-# --------------------------------------
+# --------------------------------------------
+# ESLint version supported by create-react-app
+# --------------------------------------------
+ESLINT_VERSION='^6.6.0'
+
+# -------------------------------------
 # Prompts for configuration preferences
-# --------------------------------------
+# -------------------------------------
 
 # Package Manager Prompt
 echo
@@ -78,6 +83,28 @@ if [ -f ".prettierrc.js" -o -f "prettier.config.js" -o -f ".prettierrc.yaml" -o 
   echo
 fi
 
+# Express API Prompt
+echo "Do you want to setup a mock api express server?"
+select mockapi_choice in "Yes" "No" "Cancel"; do
+  case $mockapi_choice in
+    Yes ) skip_expressapi_setup="false"; break;;
+    No ) skip_expressapi_setup="true"; break;;
+    Cancel ) exit;;
+  esac
+done
+echo
+
+# Tailwind Prompt
+echo "Do you want to setup Tailwind CSS?"
+select tailwind_choice in "Yes" "No" "Cancel"; do
+  case $tailwind_choice in
+    Yes ) skip_tailwind_setup="false"; break;;
+    No ) skip_tailwind_setup="true"; break;;
+    Cancel ) exit;;
+  esac
+done
+echo
+
 # PropTypes Prompt
 echo "Do you want to install prop-types?"
 select proptypes_choice in "Yes" "No" "Cancel"; do
@@ -100,17 +127,6 @@ select faker_choice in "Yes" "No" "Cancel"; do
 done
 echo
 
-# Mock API Prompt
-echo "Do you want to setup a mock api express server?"
-select mockapi_choice in "Yes" "No" "Cancel"; do
-  case $mockapi_choice in
-    Yes ) skip_mockapi_setup="false"; break;;
-    No ) skip_mockapi_setup="true"; break;;
-    Cancel ) exit;;
-  esac
-done
-echo
-
 # Axios Prompt
 echo "Do you want to install axios?"
 select axios_choice in "Yes" "No" "Cancel"; do
@@ -122,27 +138,18 @@ select axios_choice in "Yes" "No" "Cancel"; do
 done
 echo
 
-# Mock API Prompt
-echo "Do you want to setup tailwind?"
-select tailwind_choice in "Yes" "No" "Cancel"; do
-  case $tailwind_choice in
-    Yes ) skip_tailwind_setup="false"; break;;
-    No ) skip_tailwind_setup="true"; break;;
-    Cancel ) exit;;
-  esac
-done
-echo
-
-# ----------------------
+# ---------------------
 # Perform Configuration
-# ----------------------
+# ---------------------
+
 echo
 echo -e "${GREEN}Configuring your development environment... ${NC}"
 
+# Configure ESLint and VS Code integration
 echo
-echo -e "${LCYAN}ESLint & Prettier Installation... ${NC}"
+echo -e "${LCYAN}Installing eslint & prettier... ${NC}"
 echo
-$pkg_cmd -D eslint@^6.6.0 prettier
+$pkg_cmd -D eslint@$ESLINT_VERSION prettier
 
 echo
 echo -e "${YELLOW}Conforming to Airbnb's JavaScript Style Guide... ${NC}"
@@ -150,13 +157,14 @@ echo
 $pkg_cmd -D eslint-config-airbnb eslint-plugin-jsx-a11y eslint-plugin-import eslint-plugin-react babel-eslint
 
 echo
-echo -e "${LCYAN}Making ESlint and Prettier play nice with each other... ${NC}"
+echo -e "${YELLOW}Making ESlint and Prettier play nice with each other... ${NC}"
 echo "See https://github.com/prettier/eslint-config-prettier for more details."
 echo
 $pkg_cmd -D eslint-config-prettier eslint-plugin-prettier
 
 
-if [ "$skip_eslint_setup" == "true" ]; then
+if [ "$skip_eslint_setup" == "true" ]
+then
   echo
   echo -e "${LCYAN}Skipping eslint setup... ${NC}"
   echo
@@ -164,74 +172,46 @@ else
   echo
   echo -e "${YELLOW}Building your .eslintrc${config_extension} file...${NC}"
   > ".eslintrc${config_extension}" # truncates existing file (or creates empty)
-  if [ "$skip_proptypes_installation" == "true" ]; then
-    echo ${config_opening}'
-  "parser": "babel-eslint",
-  "extends": [
-    "airbnb",
-    "plugin:prettier/recommended",
-    "prettier/react"
-  ],
-  "env": {
-    "browser": true,
-    "commonjs": true,
-    "es6": true,
-    "jest": true,
-    "node": true
-  },
-  "rules": {
-    "react/state-in-constructor": ["error", "never"],
-    "react/prop-types": 0,
-    "max-len": [
-      "warn",
-      {
-        "code": '${max_len_val}',
-        "tabWidth": 2,
-        "comments": '${max_len_val}',
-        "ignoreComments": false,
-        "ignoreTrailingComments": true,
-        "ignoreUrls": true,
-        "ignoreStrings": true,
-        "ignoreTemplateLiterals": true,
-        "ignoreRegExpLiterals": true
-      }
-    ]
-  }
-}' >> .eslintrc${config_extension}
-  else
-    echo ${config_opening}'
-  "parser": "babel-eslint",
-  "extends": [
-    "airbnb",
-    "plugin:prettier/recommended",
-    "prettier/react"
-  ],
-  "env": {
-    "browser": true,
-    "commonjs": true,
-    "es6": true,
-    "jest": true,
-    "node": true
-  },
-  "rules": {
-    "react/state-in-constructor": ["error", "never"],
-    "max-len": [
-      "warn",
-      {
-        "code": '${max_len_val}',
-        "tabWidth": 2,
-        "comments": '${max_len_val}',
-        "ignoreComments": false,
-        "ignoreTrailingComments": true,
-        "ignoreUrls": true,
-        "ignoreStrings": true,
-        "ignoreTemplateLiterals": true,
-        "ignoreRegExpLiterals": true
-      }
-    ]
-  }
-}' >> .eslintrc${config_extension}
+
+  proptypes_rule=''
+  if [ "$skip_proptypes_installation" == "true" ]
+  then
+    proptypes_rule='"react/prop-types": 0,'
   fi
+
+  echo ${config_opening}'
+  "parser": "babel-eslint",
+  "extends": [
+    "airbnb",
+    "plugin:prettier/recommended",
+    "prettier/react"
+  ],
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es6": true,
+    "jest": true,
+    "node": true
+  },
+  "rules": {
+    "react/state-in-constructor": ["error", "never"],
+    '$proptypes_rule'
+    "max-len": [
+      "warn",
+      {
+        "code": '${max_len_val}',
+        "tabWidth": 2,
+        "comments": '${max_len_val}',
+        "ignoreComments": false,
+        "ignoreTrailingComments": true,
+        "ignoreUrls": true,
+        "ignoreStrings": true,
+        "ignoreTemplateLiterals": true,
+        "ignoreRegExpLiterals": true
+      }
+    ]
+  }
+}' >> .eslintrc${config_extension}
 
   mkdir .vscode
 
@@ -249,8 +229,9 @@ else
 }' >> .vscode/settings.json
 fi
 
-
-if [ "$skip_prettier_setup" == "true" ]; then
+# Configure prettier
+if [ "$skip_prettier_setup" == "true" ]
+then
   echo
   echo -e "${LCYAN}Skipping prettier setup... ${NC}"
   echo
@@ -264,29 +245,13 @@ else
 }' >> .prettierrc${config_extension}
 fi
 
-if [ "$skip_proptypes_installation" == "true" ]; then
-  echo
-  echo -e "${LCYAN}Skipping prop-types installation... ${NC}"
-  echo
-else
-  echo
-  echo -e "${LCYAN}PropTypes installation... ${NC}"
-  echo
-  $pkg_cmd prop-types
-fi
+# Adding eslint rule to index.js
+sed -i.bak '1i\
+/* eslint-disable react/jsx-filename-extension */
+' src/index.js
+rm src/index.js.bak
 
-if [ "$skip_faker_installation" == "true" ]; then
-  echo
-  echo -e "${LCYAN}Skipping faker installation... ${NC}"
-  echo
-else
-  echo
-  echo -e "${LCYAN}Faker installation... ${NC}"
-  echo
-  $pkg_cmd faker
-fi
-
-if [ "$skip_mockapi_setup" == "true" ]; then
+if [ "$skip_expressapi_setup" == "true" ]; then
   echo
   echo -e "${LCYAN}Skipping express mock api setup... ${NC}"
   echo
@@ -335,17 +300,6 @@ console.log(\`Mock API Server is up and running at: http://localhost:\${port}\`)
 app.listen(port);" >> mock-api/app.js
 fi
 
-if [ "$skip_axios_installation" == "true" ]; then
-  echo
-  echo -e "${LCYAN}Skipping axios installation... ${NC}"
-  echo
-else
-  echo
-  echo -e "${LCYAN}Axios installation... ${NC}"
-  echo
-  $pkg_cmd axios
-fi
-
 if [ "$skip_tailwind_setup" == "true" ]; then
   echo
   echo -e "${LCYAN}Skipping tailwind setup... ${NC}"
@@ -367,16 +321,17 @@ else
 \ \ \ \ "prebuild": "npm run build:tailwind",
 ' package.json
   # Modify the `start` script
-  if [ "$skip_mockapi_setup" == "true" ]; then
+  if [ "$skip_expressapi_setup" == "false" ]
+  then
+    # Replace previous mock-api `start` script
+    sed -i.bak 's/"start": "run-p start:react mock-api"/"start": "run-p watch:tailwind start:react mock-api"/' package.json
+  else
     # Add `start:react` script
     sed -i.bak '/"scripts"/a\
 \ \ \ \ "start:react": "react-scripts start",
 ' package.json
     # Replace original `start` script
     sed -i.bak 's/"start": "react-scripts start"/"start": "run-p watch:tailwind start:react"/' package.json
-  else
-    # Replace previous mock-api `start` script
-    sed -i.bak 's/"start": "run-p start:react mock-api"/"start": "run-p watch:tailwind start:react mock-api"/' package.json
   fi
   rm package.json.bak
 
@@ -453,10 +408,38 @@ import './tailwind.generated.css';
   rm src/index.js.bak
 fi
 
-sed -i.bak '1i\
-/* eslint-disable react/jsx-filename-extension */
-' src/index.js
-rm src/index.js.bak
+if [ "$skip_proptypes_installation" == "true" ]; then
+  echo
+  echo -e "${LCYAN}Skipping prop-types installation... ${NC}"
+  echo
+else
+  echo
+  echo -e "${LCYAN}Installing prop-types... ${NC}"
+  echo
+  $pkg_cmd prop-types
+fi
+
+if [ "$skip_faker_installation" == "true" ]; then
+  echo
+  echo -e "${LCYAN}Skipping faker installation... ${NC}"
+  echo
+else
+  echo
+  echo -e "${LCYAN}Installing faker... ${NC}"
+  echo
+  $pkg_cmd faker
+fi
+
+if [ "$skip_axios_installation" == "true" ]; then
+  echo
+  echo -e "${LCYAN}Skipping axios installation... ${NC}"
+  echo
+else
+  echo
+  echo -e "${LCYAN}Installing axios... ${NC}"
+  echo
+  $pkg_cmd axios
+fi
 
 echo
 echo -e "${GREEN}Finished setting up!${NC}"

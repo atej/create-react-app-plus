@@ -1,0 +1,39 @@
+{
+  "name": "create-react-app-plus",
+  "version": "0.1.0",
+  "description": "Setup a sweet `create-react-app` development environment ludicrously fast",
+  "main": "Gruntfile.js",
+  "scripts": {
+    "build": "grunt",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atej/create-react-app-plus.git"
+  },
+  "keywords": [
+    "react",
+    "create-react-app",
+    "shell-script",
+    "eslint",
+    "eslint-config-airbnb",
+    "prettier",
+    "vscode",
+    "tailwindcss",
+    "developer-environment",
+    "developer-experience",
+    "development-tools"
+  ],
+  "contributors": [
+    "Aseem Taneja <aseem@rigorlab.com>"
+  ],
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/atej/create-react-app-plus/issues"
+  },
+  "homepage": "https://github.com/atej/create-react-app-plus#readme",
+  "devDependencies": {
+    "grunt": "^1.1.0",
+    "grunt-contrib-concat": "^1.0.1"
+  }
+}

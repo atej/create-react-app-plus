@@ -1,4 +1,3 @@
-
 # Features
 #### 🎨 Automatic linting and formatting with ESlint and Prettier in VS Code 
 #### 🚦PropTypes for run-time type checking [optional]
@@ -163,7 +162,6 @@ Two other options that I was used to specifying earlier, but have since Prettier
 ```
 - To know what each option does and for more options, refer the [Prettier docs](https://prettier.io/docs/en/options.html)
 
-
 ## Auto-fix in Visual Studio Code
 ### `.vscode/settings.json`
 - eslint extension settings
@@ -256,7 +254,7 @@ module.exports = {
 /* purgecss end ignore */
 ```
 
-### Files for ypur custom CSS: `src/custom-base-styles.css`, `src/custom-components.css`, `src/custom-utilities.css`
+### Files for your custom CSS: `src/custom-base-styles.css`, `src/custom-components.css`, `src/custom-utilities.css`
 
 > Note: A file named `tailwind.generated.css` will be auto-generated in the `src` directory when you `start` or `build` the app. This is the main tailwind CSS file which is imported in `index.js`. Do not manipulate this file directly. Also since, it is auto-generated from your source CSS, it should not be committed to source control (a corresponding entry in `.gitignore` is made by the script).
 
@@ -264,6 +262,7 @@ module.exports = {
 - From the Tailwind docs - [using with preprocessors](https://tailwindcss.com/docs/using-with-preprocessors) and [controlling file size](https://tailwindcss.com/docs/controlling-file-size) are valuable to further understand what's going on.
 - To learn more about tailwind concepts, refer the [docs.](https://tailwindcss.com/docs/utility-first)
 - These extensions make working with Tailwind in VS Code even better - [Tailwind CSS Intellisense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss), [Headwind](https://marketplace.visualstudio.com/items?itemName=heybourn.headwind)
+
 ---
 
 ## Origin Story
