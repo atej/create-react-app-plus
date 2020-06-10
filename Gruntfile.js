@@ -10,7 +10,7 @@ module.exports = function(grunt) {
       craPlus: {
         options,
         src: [
-          'src/sh/partials/_use-bash.sh',
+          'src/sh/partials/_define-shell.sh',
           'src/sh/vars/_colors.sh',
           'src/sh/vars/_eslint_version.sh',
           'src/sh/partials/_comment-prompts.sh',
@@ -40,7 +40,7 @@ module.exports = function(grunt) {
       lintAndFormat: {
         options,
         src: [
-          'src/sh/partials/_use-bash.sh',
+          'src/sh/partials/_define-shell.sh',
           'src/sh/vars/_colors.sh',
           'src/sh/vars/_eslint_version.sh',
           'src/sh/partials/_comment-prompts.sh',
@@ -60,7 +60,7 @@ module.exports = function(grunt) {
       expressAPI: {
         options,
         src: [
-          'src/sh/partials/_use-bash.sh',
+          'src/sh/partials/_define-shell.sh',
           'src/sh/vars/_colors.sh',
           'src/sh/partials/_comment-prompts.sh',
           'src/sh/partials/_prompt-package_manager.sh',
@@ -75,7 +75,7 @@ module.exports = function(grunt) {
       tailwind: {
         options,
         src: [
-          'src/sh/partials/_use-bash.sh',
+          'src/sh/partials/_define-shell.sh',
           'src/sh/vars/_colors.sh',
           'src/sh/partials/_comment-prompts.sh',
           'src/sh/partials/_prompt-package_manager.sh',
