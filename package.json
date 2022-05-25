@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/atej/create-react-app-plus#readme",
   "devDependencies": {
-    "grunt": "^1.1.0",
+    "grunt": "^1.5.3",
     "grunt-contrib-concat": "^1.0.1"
   }
 }
